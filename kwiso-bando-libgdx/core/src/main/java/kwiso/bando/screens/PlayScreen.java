@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 import kwiso.bando.KwisoBandoGame;
+import kwiso.bando.audio.AudioManager;
 import kwiso.bando.config.GameConfig;
 import kwiso.bando.config.Palette;
 import kwiso.bando.config.RoundPhase;
@@ -47,6 +48,7 @@ public class PlayScreen extends BaseScreen {
     private float timer;
     private float elapsed;
     private float whistleCooldown;
+    private float stepTimer;
     private int pebbles;
     private boolean paused;
     private String banner;
@@ -64,6 +66,7 @@ public class PlayScreen extends BaseScreen {
         timer = GameConfig.HIDE_DURATION;
         elapsed = 0f;
         whistleCooldown = 0f;
+        stepTimer = 0f;
         pebbles = 3;
         noiseEvents.clear();
         paused = false;
@@ -121,6 +124,7 @@ public class PlayScreen extends BaseScreen {
             pebbles--;
             Vector2 target = player.getPosition().cpy().add(facingDirection.cpy().scl(240f));
             noiseEvents.add(new NoiseEvent(target, 1.4f));
+            AudioManager.get().play(AudioManager.PEBBLE, 0.7f);
             if (phase == RoundPhase.SEARCHING) {
                 seeker.hearNoise(target);
             }
@@ -129,6 +133,7 @@ public class PlayScreen extends BaseScreen {
             whistleCooldown = 8f;
             Vector2 target = player.getPosition().cpy().add(facingDirection.cpy().scl(360f));
             noiseEvents.add(new NoiseEvent(target, 2f));
+            AudioManager.get().play(AudioManager.WHISTLE, 0.6f);
             if (phase == RoundPhase.SEARCHING) {
                 seeker.hearNoise(target);
             }
@@ -139,6 +144,17 @@ public class PlayScreen extends BaseScreen {
             seeker.hearNoise(player.getPosition());
         }
 
+        if (player.getNoiseRadius() > 0f) {
+            stepTimer -= delta;
+            if (stepTimer <= 0f) {
+                AudioManager.get().play(AudioManager.STEP,
+                    player.isSprinting() ? 0.35f : 0.2f);
+                stepTimer = player.isSprinting() ? 0.24f : 0.4f;
+            }
+        } else {
+            stepTimer = 0f;
+        }
+
         switch (phase) {
             case HIDING:
                 seeker.setFacing(180f);
@@ -147,14 +163,15 @@ public class PlayScreen extends BaseScreen {
                     phase = RoundPhase.SEARCHING;
                     timer = GameConfig.SEARCH_DURATION;
                     banner = "SEEKER IS PATROLLING";
+                    AudioManager.get().play(AudioManager.KWISO, 0.9f);
                 }
                 break;
             case SEARCHING:
                 seeker.update(delta, phase, player, obstacles, homeBase);
                 elapsed += delta;
                 timer -= delta;
-                if (tapped) {
-                    player.dash();
+                if (tapped && player.dash()) {
+                    AudioManager.get().play(AudioManager.DASH, 0.7f);
                 }
                 if (touchesBase(player.getPosition(), GameConfig.PLAYER_RADIUS)
                     || (tapped && touchesBase(player.getPosition(), GameConfig.PLAYER_RADIUS + 60f))) {
@@ -162,6 +179,7 @@ public class PlayScreen extends BaseScreen {
                 } else if (seeker.isAlerted()) {
                     phase = RoundPhase.RACE;
                     banner = "RACE TO BASE!";
+                    AudioManager.get().play(AudioManager.SPOTTED, 0.9f);
                 } else if (timer <= 0f) {
                     finish(RoundResult.Kind.LOSS, "Round timer expired");
                 }
@@ -170,8 +188,8 @@ public class PlayScreen extends BaseScreen {
                 seeker.update(delta, phase, player, obstacles, homeBase);
                 elapsed += delta;
                 timer = Math.max(0f, timer - delta);
-                if (tapped) {
-                    player.dash();
+                if (tapped && player.dash()) {
+                    AudioManager.get().play(AudioManager.DASH, 0.7f);
                 }
                 if (touchesBase(player.getPosition(), GameConfig.PLAYER_RADIUS)) {
                     finish(RoundResult.Kind.WIN, "Beat the seeker to the base");
@@ -191,6 +209,8 @@ public class PlayScreen extends BaseScreen {
     }
 
     private void finish(RoundResult.Kind kind, String reason) {
+        AudioManager.get().play(kind == RoundResult.Kind.WIN
+            ? AudioManager.WIN : AudioManager.LOSE, 0.9f);
         game.setScreen(new RoundSummaryScreen(game, new RoundResult(kind, elapsed, reason)));
         dispose();
     }
