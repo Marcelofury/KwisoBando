@@ -63,7 +63,6 @@ No system Gradle installation is required; use the included wrapper scripts.
 ```text
 C:\Users\USER\kwisoBando
 ├── Kwiso_Bando_SRS_and_Project_Plan.docx
-├── Reverse_Engineering_and_From_Scratch_Build_Guide.docx
 ├── HOW_TO_PLAY.md                         (inside kwiso-bando-libgdx)
 ├── GAME_SETTINGS.md                       (inside kwiso-bando-libgdx)
 ├── screen.png / screen1.png / screen2.png / screen4.png
@@ -227,7 +226,6 @@ See [GAME_SETTINGS.md](kwiso-bando-libgdx/GAME_SETTINGS.md) for the full referen
 | --- | --- |
 | [HOW_TO_PLAY.md](kwiso-bando-libgdx/HOW_TO_PLAY.md) | Player-facing rules, controls, tips, scoring, and build status |
 | [GAME_SETTINGS.md](kwiso-bando-libgdx/GAME_SETTINGS.md) | Runtime settings, tuning constants, audio, graphics, and commands |
-| [Reverse_Engineering_and_From_Scratch_Build_Guide.docx](Reverse_Engineering_and_From_Scratch_Build_Guide.docx) | How to rebuild from a libGDX generator skeleton, how the implementation was done, and why packages were used or avoided |
 | [Kwiso_Bando_SRS_and_Project_Plan.docx](Kwiso_Bando_SRS_and_Project_Plan.docx) | Original requirements and project plan |
 | [Reference screenshots](screen.png) | Original visual references: [screen1.png](screen1.png), [screen2.png](screen2.png), [screen4.png](screen4.png) |
 
