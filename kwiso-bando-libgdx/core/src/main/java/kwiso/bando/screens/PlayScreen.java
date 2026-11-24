@@ -9,6 +9,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import kwiso.bando.KwisoBandoGame;
@@ -30,6 +31,7 @@ public class PlayScreen extends BaseScreen {
     private static final Color NOISE_RING = new Color(1f, 1f, 1f, 0.18f);
     private static final Color BASE_GLOW = new Color(0.18f, 0.55f, 0.2f, 0.35f);
     private static final Color SCRIM = new Color(0f, 0f, 0f, 0.72f);
+    private static final Rectangle WALKABLE = new Rectangle(60f, 150f, 1160f, 460f);
 
     private final List<Obstacle> obstacles = buildMap();
     private final HomeBase homeBase = new HomeBase(130f, 390f);
@@ -39,7 +41,7 @@ public class PlayScreen extends BaseScreen {
         new Vector2(1120f, 480f), new Vector2(760f, 480f),
         new Vector2(600f, 300f), new Vector2(700f, 180f),
         new Vector2(930f, 180f)
-    });
+    }, obstacles, WALKABLE);
     private final InputState input = new InputState();
     private final HudRenderer hud = new HudRenderer();
     private final List<NoiseEvent> noiseEvents = new ArrayList<NoiseEvent>();
@@ -51,6 +53,7 @@ public class PlayScreen extends BaseScreen {
     private float stepTimer;
     private int pebbles;
     private boolean paused;
+    private boolean finished;
     private String banner;
 
     public PlayScreen(KwisoBandoGame game) {
@@ -70,6 +73,7 @@ public class PlayScreen extends BaseScreen {
         pebbles = 3;
         noiseEvents.clear();
         paused = false;
+        finished = false;
         banner = "HIDE! SCATTER BEHIND COVER";
     }
 
@@ -91,6 +95,9 @@ public class PlayScreen extends BaseScreen {
     public void render(float delta) {
         if (!paused) {
             update(Math.min(delta, 1f / 30f));
+        }
+        if (finished) {
+            return;
         }
 
         clearScreen();
@@ -209,6 +216,10 @@ public class PlayScreen extends BaseScreen {
     }
 
     private void finish(RoundResult.Kind kind, String reason) {
+        if (finished) {
+            return;
+        }
+        finished = true;
         AudioManager.get().play(kind == RoundResult.Kind.WIN
             ? AudioManager.WIN : AudioManager.LOSE, 0.9f);
         game.setScreen(new RoundSummaryScreen(game,
