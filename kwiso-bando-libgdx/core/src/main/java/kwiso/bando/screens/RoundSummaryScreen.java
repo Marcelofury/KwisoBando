@@ -9,17 +9,29 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import kwiso.bando.KwisoBandoGame;
+import kwiso.bando.audio.AudioManager;
+import kwiso.bando.config.GameSettings;
 import kwiso.bando.config.Palette;
 import kwiso.bando.config.RoundResult;
+import kwiso.bando.systems.ScoreCalculator;
 
 public class RoundSummaryScreen extends BaseScreen {
     private final RoundResult result;
     private final Rectangle againButton = new Rectangle(380f, 190f, 240f, 64f);
     private final Rectangle menuButton = new Rectangle(660f, 190f, 240f, 64f);
+    private final int score;
+    private final String rank;
+    private final int bestScore;
+    private final boolean newBest;
 
     public RoundSummaryScreen(KwisoBandoGame game, RoundResult result) {
         super(game);
         this.result = result;
+        this.score = ScoreCalculator.score(result);
+        this.rank = ScoreCalculator.rank(score);
+        this.newBest = score > GameSettings.getBestScore();
+        this.bestScore = Math.max(GameSettings.getBestScore(), score);
+        GameSettings.setBestScore(bestScore);
     }
 
     @Override
@@ -45,6 +57,15 @@ public class RoundSummaryScreen extends BaseScreen {
         font.setColor(Palette.PARCHMENT);
         font.draw(batch, result.reason, 370f, 476f);
         font.draw(batch, String.format(Locale.US, "TIME: %.1f s", result.elapsedSeconds), 370f, 420f);
+        font.setColor(Palette.OCHRE);
+        font.draw(batch, String.format(Locale.US, "SCORE %d   RANK %s", score, rank), 370f, 364f);
+        font.setColor(Palette.PARCHMENT);
+        font.draw(batch, newBest ? "NEW PERSONAL BEST!"
+            : String.format(Locale.US, "BEST %d", bestScore), 370f, 318f);
+        font.setColor(Palette.MUTED);
+        font.draw(batch, result.spotted ? "The seeker spotted you" : "You stayed unseen",
+            370f, 274f);
+        font.setColor(Palette.PARCHMENT);
         drawCentered("PLAY AGAIN", againButton);
         drawCentered("MAIN MENU", menuButton);
         font.setColor(Palette.MUTED);
@@ -62,10 +83,12 @@ public class RoundSummaryScreen extends BaseScreen {
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.SPACE || keycode == Input.Keys.ENTER || keycode == Input.Keys.R) {
+            AudioManager.get().play(AudioManager.TAP, 0.8f);
             game.setScreen(new PlayScreen(game));
             return true;
         }
         if (keycode == Input.Keys.ESCAPE) {
+            AudioManager.get().play(AudioManager.TAP, 0.8f);
             game.setScreen(new MenuScreen(game));
             return true;
         }
@@ -76,8 +99,10 @@ public class RoundSummaryScreen extends BaseScreen {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         Vector2 point = screenToWorld(screenX, screenY);
         if (againButton.contains(point)) {
+            AudioManager.get().play(AudioManager.TAP, 0.8f);
             game.setScreen(new PlayScreen(game));
         } else if (menuButton.contains(point)) {
+            AudioManager.get().play(AudioManager.TAP, 0.8f);
             game.setScreen(new MenuScreen(game));
         }
         return true;

@@ -211,7 +211,8 @@ public class PlayScreen extends BaseScreen {
     private void finish(RoundResult.Kind kind, String reason) {
         AudioManager.get().play(kind == RoundResult.Kind.WIN
             ? AudioManager.WIN : AudioManager.LOSE, 0.9f);
-        game.setScreen(new RoundSummaryScreen(game, new RoundResult(kind, elapsed, reason)));
+        game.setScreen(new RoundSummaryScreen(game,
+            new RoundResult(kind, elapsed, reason, seeker.isAlerted())));
         dispose();
     }
 

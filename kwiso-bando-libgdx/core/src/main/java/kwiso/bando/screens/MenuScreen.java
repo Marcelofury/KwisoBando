@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import kwiso.bando.KwisoBandoGame;
 import kwiso.bando.audio.AudioManager;
+import kwiso.bando.config.GameSettings;
 import kwiso.bando.config.Palette;
 
 import static kwiso.bando.config.GameConfig.VIEW_HEIGHT;
@@ -55,7 +56,8 @@ public class MenuScreen extends BaseScreen {
         drawCentered("EXIT", exitButton);
         font.setColor(Palette.MUTED);
         font.draw(batch, "A Ugandan hide-and-seek adaptation  |  Java + libGDX", 330f, 76f);
-        font.draw(batch, "ENTER play   H rules   S settings   ESC exit", 440f, 44f);
+        font.draw(batch, "BEST " + GameSettings.getBestScore()
+            + "   |   ENTER play   H rules   S settings   ESC exit", 372f, 44f);
         batch.end();
     }
 
