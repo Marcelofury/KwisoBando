@@ -12,6 +12,14 @@ public final class GameConfig {
     public static final float SNEAK_MULTIPLIER = 0.6f;
     public static final float SEEKER_PATROL_SPEED = 130f;
     public static final float SEEKER_RACE_MULTIPLIER = 0.95f;
+    public static final float DASH_MULTIPLIER = 2.2f;
+    public static final float DASH_COST = 20f;
+    public static final float DASH_DURATION = 0.22f;
+    public static final float DASH_COOLDOWN = 1.2f;
+    public static final float SPRINT_NOISE = 150f;
+    public static final float WALK_NOISE = 55f;
+    public static final float DASH_NOISE = 190f;
+    public static final float INVESTIGATE_DURATION = 5f;
 
     public static final float STAMINA_MAX = 100f;
     public static final float STAMINA_DRAIN = 26f;

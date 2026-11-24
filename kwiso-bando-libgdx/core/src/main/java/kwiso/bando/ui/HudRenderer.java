@@ -14,7 +14,8 @@ import kwiso.bando.entities.SeekerAI;
 
 public class HudRenderer {
     public void render(SpriteBatch batch, BitmapFont font, ShapeRenderer shapes,
-                       RoundPhase phase, float timer, HiderPlayer player, SeekerAI seeker) {
+                       RoundPhase phase, float timer, HiderPlayer player, SeekerAI seeker,
+                       int pebbles, float whistleCooldown) {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
         panel(shapes, 24f, 628f, 260f, 68f);
         panel(shapes, 490f, 620f, 300f, 76f);
@@ -27,7 +28,9 @@ public class HudRenderer {
         shapes.rect(40f, 640f, 228f * player.getStamina() / GameConfig.STAMINA_MAX, 14f);
 
         float noise = 0f;
-        if (player.isSprinting()) {
+        if (player.isDashing()) {
+            noise = 4f;
+        } else if (player.isSprinting()) {
             noise = 3f;
         } else if (!player.isSneaking()) {
             noise = 2f;
@@ -57,7 +60,10 @@ public class HudRenderer {
         font.setColor(Palette.MUTED);
         font.draw(batch, "STEALTH", 40f, 66f);
         font.draw(batch, player.isSneaking() ? "SILENT" : (player.isSprinting() ? "LOUD" : "LOW"), 40f, 42f);
-        font.draw(batch, "WASD move   SHIFT sprint   CTRL sneak   SPACE tap base   ESC pause", 426f, 46f);
+        String whistle = whistleCooldown > 0f
+            ? String.format(Locale.US, "%4.0fs", whistleCooldown) : " READY";
+        font.draw(batch, String.format(Locale.US,
+            "Q pebbles %d   E whistle %s   SPACE dash/tap", pebbles, whistle), 426f, 46f);
 
         if (seeker.getDetectionProgress() > 0f) {
             font.setColor(Palette.PARCHMENT);

@@ -10,6 +10,8 @@ public final class InputState {
     public boolean sprint;
     public boolean sneak;
     public boolean action;
+    public boolean throwPebble;
+    public boolean whistle;
 
     public Vector2 direction() {
         float x = (right ? 1f : 0f) - (left ? 1f : 0f);
@@ -25,5 +27,7 @@ public final class InputState {
         sprint = false;
         sneak = false;
         action = false;
+        throwPebble = false;
+        whistle = false;
     }
 }

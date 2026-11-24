@@ -12,10 +12,13 @@ import kwiso.bando.systems.VisionCone;
 public class SeekerAI {
     private final Vector2 position = new Vector2();
     private final Vector2[] waypoints;
+    private final Vector2 noiseTarget = new Vector2();
     private int waypointIndex;
     private float facing;
     private float detectionTimer;
+    private float investigateTimer;
     private boolean alerted;
+    private boolean investigating;
 
     public SeekerAI(Vector2[] waypoints) {
         this.waypoints = waypoints;
@@ -26,11 +29,19 @@ public class SeekerAI {
         waypointIndex = 0;
         facing = 180f;
         detectionTimer = 0f;
+        investigateTimer = 0f;
         alerted = false;
+        investigating = false;
     }
 
     public void setFacing(float degrees) {
         facing = degrees;
+    }
+
+    public void hearNoise(Vector2 source) {
+        noiseTarget.set(source);
+        investigateTimer = GameConfig.INVESTIGATE_DURATION;
+        investigating = true;
     }
 
     public void update(float delta, RoundPhase phase, HiderPlayer player,
@@ -46,11 +57,20 @@ public class SeekerAI {
             speed = GameConfig.BASE_SPEED * GameConfig.SPRINT_MULTIPLIER
                 * GameConfig.SEEKER_RACE_MULTIPLIER;
         } else {
-            target = waypoints[waypointIndex];
             speed = GameConfig.SEEKER_PATROL_SPEED;
-            if (position.dst2(target) < 18f * 18f) {
-                waypointIndex = (waypointIndex + 1) % waypoints.length;
+            if (investigating) {
+                investigateTimer -= delta;
+                target = noiseTarget;
+                speed *= 1.25f;
+                if (position.dst2(target) < 20f * 20f || investigateTimer <= 0f) {
+                    investigating = false;
+                }
+            } else {
                 target = waypoints[waypointIndex];
+                if (position.dst2(target) < 18f * 18f) {
+                    waypointIndex = (waypointIndex + 1) % waypoints.length;
+                    target = waypoints[waypointIndex];
+                }
             }
         }
 
@@ -66,6 +86,7 @@ public class SeekerAI {
                 detectionTimer += delta;
                 if (detectionTimer >= GameConfig.DETECTION_TIME) {
                     alerted = true;
+                    investigating = false;
                 }
             } else {
                 detectionTimer = Math.max(0f, detectionTimer - delta * 2f);
@@ -100,6 +121,14 @@ public class SeekerAI {
 
     public boolean isAlerted() {
         return alerted;
+    }
+
+    public boolean isInvestigating() {
+        return investigating;
+    }
+
+    public Vector2 getNoiseTarget() {
+        return noiseTarget;
     }
 
     private static float wrapAngle(float degrees) {

@@ -21,6 +21,7 @@ import kwiso.bando.entities.HomeBase;
 import kwiso.bando.entities.Obstacle;
 import kwiso.bando.entities.SeekerAI;
 import kwiso.bando.systems.InputState;
+import kwiso.bando.systems.NoiseEvent;
 import kwiso.bando.systems.VisionCone;
 import kwiso.bando.ui.HudRenderer;
 
@@ -40,10 +41,13 @@ public class PlayScreen extends BaseScreen {
     });
     private final InputState input = new InputState();
     private final HudRenderer hud = new HudRenderer();
+    private final List<NoiseEvent> noiseEvents = new ArrayList<NoiseEvent>();
 
     private RoundPhase phase;
     private float timer;
     private float elapsed;
+    private float whistleCooldown;
+    private int pebbles;
     private boolean paused;
     private String banner;
 
@@ -59,6 +63,9 @@ public class PlayScreen extends BaseScreen {
         phase = RoundPhase.HIDING;
         timer = GameConfig.HIDE_DURATION;
         elapsed = 0f;
+        whistleCooldown = 0f;
+        pebbles = 3;
+        noiseEvents.clear();
         paused = false;
         banner = "HIDE! SCATTER BEHIND COVER";
     }
@@ -85,7 +92,8 @@ public class PlayScreen extends BaseScreen {
 
         clearScreen();
         drawWorld();
-        hud.render(batch, font, shapes, phase, timer, player, seeker);
+        hud.render(batch, font, shapes, phase, timer, player, seeker,
+            pebbles, whistleCooldown);
         drawWorldLabels();
         if (paused) {
             drawPauseOverlay();
@@ -95,7 +103,41 @@ public class PlayScreen extends BaseScreen {
     private void update(float delta) {
         player.update(delta, input, obstacles);
         boolean tapped = input.action;
+        boolean pebble = input.throwPebble;
+        boolean whistle = input.whistle;
         input.action = false;
+        input.throwPebble = false;
+        input.whistle = false;
+        whistleCooldown = Math.max(0f, whistleCooldown - delta);
+
+        for (NoiseEvent event : noiseEvents) {
+            event.update(delta);
+        }
+        noiseEvents.removeIf(NoiseEvent::isExpired);
+
+        Vector2 facingDirection = new Vector2(
+            MathUtils.cosDeg(player.getFacing()), MathUtils.sinDeg(player.getFacing()));
+        if (pebble && pebbles > 0 && phase != RoundPhase.HIDING) {
+            pebbles--;
+            Vector2 target = player.getPosition().cpy().add(facingDirection.cpy().scl(240f));
+            noiseEvents.add(new NoiseEvent(target, 1.4f));
+            if (phase == RoundPhase.SEARCHING) {
+                seeker.hearNoise(target);
+            }
+        }
+        if (whistle && whistleCooldown <= 0f && phase != RoundPhase.HIDING) {
+            whistleCooldown = 8f;
+            Vector2 target = player.getPosition().cpy().add(facingDirection.cpy().scl(360f));
+            noiseEvents.add(new NoiseEvent(target, 2f));
+            if (phase == RoundPhase.SEARCHING) {
+                seeker.hearNoise(target);
+            }
+        }
+
+        if (phase == RoundPhase.SEARCHING && player.getNoiseRadius() > 0f
+            && seeker.getPosition().dst(player.getPosition()) <= player.getNoiseRadius()) {
+            seeker.hearNoise(player.getPosition());
+        }
 
         switch (phase) {
             case HIDING:
@@ -111,6 +153,9 @@ public class PlayScreen extends BaseScreen {
                 seeker.update(delta, phase, player, obstacles, homeBase);
                 elapsed += delta;
                 timer -= delta;
+                if (tapped) {
+                    player.dash();
+                }
                 if (touchesBase(player.getPosition(), GameConfig.PLAYER_RADIUS)
                     || (tapped && touchesBase(player.getPosition(), GameConfig.PLAYER_RADIUS + 60f))) {
                     finish(RoundResult.Kind.WIN, "Tapped Home Base unseen");
@@ -125,6 +170,9 @@ public class PlayScreen extends BaseScreen {
                 seeker.update(delta, phase, player, obstacles, homeBase);
                 elapsed += delta;
                 timer = Math.max(0f, timer - delta);
+                if (tapped) {
+                    player.dash();
+                }
                 if (touchesBase(player.getPosition(), GameConfig.PLAYER_RADIUS)) {
                     finish(RoundResult.Kind.WIN, "Beat the seeker to the base");
                 } else if (touchesBase(seeker.getPosition(), GameConfig.SEEKER_RADIUS)) {
@@ -179,9 +227,17 @@ public class PlayScreen extends BaseScreen {
                 player.getNoiseRadius(), 48);
         }
 
+        for (NoiseEvent event : noiseEvents) {
+            shapes.setColor(NOISE_RING);
+            shapes.circle(event.getPosition().x, event.getPosition().y,
+                8f + 26f * event.getProgress(), 24);
+            shapes.setColor(Palette.OCHRE);
+            shapes.circle(event.getPosition().x, event.getPosition().y, 4f, 12);
+        }
+
         shapes.setColor(Palette.DEEP);
         shapes.circle(player.getPosition().x, player.getPosition().y, GameConfig.PLAYER_RADIUS + 3f, 24);
-        shapes.setColor(Palette.RUNNER);
+        shapes.setColor(player.isDashing() ? Palette.OCHRE : Palette.RUNNER);
         shapes.circle(player.getPosition().x, player.getPosition().y, GameConfig.PLAYER_RADIUS, 24);
 
         shapes.setColor(Palette.DEEP);
@@ -243,6 +299,9 @@ public class PlayScreen extends BaseScreen {
         if (seeker.getDetectionProgress() > 0f && !seeker.isAlerted()) {
             font.setColor(Palette.ALERT);
             font.draw(batch, "?", seeker.getPosition().x - 6f, seeker.getPosition().y + 30f);
+        } else if (seeker.isInvestigating()) {
+            font.setColor(Palette.OCHRE);
+            font.draw(batch, "!", seeker.getPosition().x - 5f, seeker.getPosition().y + 30f);
         }
         batch.end();
     }
@@ -317,6 +376,12 @@ public class PlayScreen extends BaseScreen {
             case Input.Keys.SPACE:
                 input.action = true;
                 return true;
+            case Input.Keys.Q:
+                input.throwPebble = true;
+                return true;
+            case Input.Keys.E:
+                input.whistle = true;
+                return true;
             default:
                 return false;
         }
@@ -351,6 +416,12 @@ public class PlayScreen extends BaseScreen {
             case Input.Keys.CONTROL_LEFT:
             case Input.Keys.CONTROL_RIGHT:
                 input.sneak = false;
+                return true;
+            case Input.Keys.Q:
+                input.throwPebble = false;
+                return true;
+            case Input.Keys.E:
+                input.whistle = false;
                 return true;
             default:
                 return false;
