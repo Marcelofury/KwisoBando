@@ -15,13 +15,15 @@ public class HowToPlayScreen extends BaseScreen {
         "1. SCATTER & HIDE",
         "   Seeker counts 7 seconds while you reply Bando!",
         "2. EVADE THE CONE",
-        "   Stay out of the amber vision cone; walls block sight.",
+        "   Stay out of the amber cone; walls block sight.",
+        "   Sprinting/dashing makes noise the seeker investigates.",
         "3. RACE TO BASE",
-        "   Spotted? Sprint to the green Home Base before the seeker.",
+        "   Spotted? Sprint to the green Home Base first.",
+        "4. SCORE & RANK",
+        "   Faster unseen wins earn more; personal best is saved.",
         "CONTROLS",
-        "   WASD / Arrows  move      SHIFT  sprint (loud)",
-        "   CTRL  sneak (silent)      SPACE  tap the base",
-        "   ESC  pause"
+        "   WASD move   SHIFT sprint   CTRL sneak   SPACE dash/tap",
+        "   Q pebble decoy   E whistle decoy   ESC pause"
     };
 
     private final Rectangle startButton = new Rectangle(740f, 92f, 320f, 64f);
@@ -57,10 +59,10 @@ public class HowToPlayScreen extends BaseScreen {
         font.setColor(Palette.PARCHMENT);
         font.draw(batch, "HOW TO PLAY - KWISO BANDO", 190f, 598f);
         font.setColor(Palette.PARCHMENT);
-        float y = 545f;
+        float y = 560f;
         for (String line : RULES) {
             font.draw(batch, line, 190f, y);
-            y -= 39f;
+            y -= 32f;
         }
         drawCentered("START ROUND", startButton);
         drawCentered("MAIN MENU", backButton);
