@@ -30,7 +30,8 @@ All balance values live in `core/src/main/java/kwiso/bando/config/GameConfig.jav
 
 | Constant | Value | Effect |
 | --- | --- | --- |
-| `HIDE_DURATION` | 7 s | Hiding countdown |
+| `HIDE_DURATION` | 15 s | Hiding countdown |
+| `HIDE_CALLOUT_GAP` | 0.75 s | Quiet gap after each KWISO/BANDO voice callout during HIDING |
 | `SEARCH_DURATION` | 60 s | Round timer |
 | `BASE_SPEED` | 210 px/s | Player walking speed |
 | `SPRINT_MULTIPLIER` | 1.6 | Sprint speed multiplier |
@@ -57,11 +58,11 @@ Change a value, rebuild, and the whole round uses the new balance.
 
 ## Audio
 
-Short synthesized WAV effects are bundled in `core/src/main/resources/assets/audio/` and loaded by `AudioManager`.
+WAV effects are bundled in `core/src/main/resources/assets/audio/` and loaded by `AudioManager`.
 
-Implemented effects: `kwiso`, `bando`, `tap`, `dash`, `pebble`, `whistle`, `spotted`, `step`, `win`, `lose`.
+`kwiso.wav` and `bando.wav` are the bundled user-recorded voice callouts. Their WAV duration is read from the file header at load time; HIDING plays KWISO fully, waits `HIDE_CALLOUT_GAP` in silence, plays BANDO fully, waits the same gap, then repeats until SEARCHING begins. Replacement clips should be 16-bit mono WAV; 48 kHz files such as the current recordings work, and 22.05 kHz also works. `tap`, `dash`, `pebble`, `whistle`, `spotted`, `step`, `win`, and `lose` remain short synthesized effects.
 
-Voice callouts, music, and volume sliders are not implemented; the settings screen currently provides a single sound on/off toggle.
+Music, alternate voice actors, and volume sliders are not implemented; the settings screen currently provides a single sound on/off toggle.
 
 ## Graphics and accessibility
 
@@ -75,6 +76,7 @@ Voice callouts, music, and volume sliders are not implemented; the settings scre
 ```powershell
 cd kwiso-bando-libgdx
 .\gradlew.bat desktop:run
+.\gradlew.bat desktop:build
 .\gradlew.bat core:test
 .\gradlew.bat desktop:fatJar
 ```

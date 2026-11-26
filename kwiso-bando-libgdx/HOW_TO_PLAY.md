@@ -28,7 +28,7 @@ Hide from the Seeker, stay out of the vision cone, and touch the green **Home Ba
 
 ## Round phases
 
-1. **HIDE! (7 seconds)** — The Seeker faces the base and cannot see. Sprint behind a wall, hut, tree, or bush before the countdown ends. The Seeker calls "Kwiso!" and hiders answer "Bando!".
+1. **HIDE! (15 seconds)** — The Seeker faces the base and cannot see. Sprint behind a wall, hut, tree, or bush before the countdown ends. A recorded "Kwiso!" call plays first, then "Bando!" replies, with short quiet gaps between them, repeating until the countdown ends.
 2. **SEARCHING (60 seconds)** — The Seeker patrols with a cone-shaped view. Walls, trees, and huts block line of sight. Stay outside the cone, or sneak past while its back is turned. If you sprint or dash too close, the Seeker investigates the noise.
 3. **RACE TO BASE** — If the Seeker sees you for half a second, it is spotted. Both racers sprint to the Home Base; you win if you touch it first.
 
@@ -57,4 +57,5 @@ The round summary shows elapsed time, score, rank, and a saved personal best.
 
 ## Current build status
 
-The game is a playable graybox prototype: core rules, timers, movement, stamina, collisions, line of sight, Seeker AI, noise investigation, HUD, synthesized sound effects, settings, scoring, and round summary are implemented. Sprites, bundled fonts/icons, voice callouts, and full visual polish are still pending.
+The game is a playable graybox prototype: core rules, timers, movement, stamina, collisions, line of sight, Seeker AI with A* pathfinding, noise investigation, HUD, sound effects, user-recorded KWISO/BANDO voice callouts with quiet gaps during HIDING, settings, scoring, and round summary are implemented.
+ Sprites, bundled fonts/icons, and full visual polish are still pending.

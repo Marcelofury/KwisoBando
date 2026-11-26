@@ -1,7 +1,9 @@
 .gradle/
 **/build/
+**/bin/
 **/*.class
 .idea/
 *.iml
 .DS_Store
+hs_err_pid*.log
 Reverse_Engineering_and_From_Scratch_Build_Guide.docx

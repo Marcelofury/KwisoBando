@@ -54,6 +54,8 @@ public class PlayScreen extends BaseScreen {
     private int pebbles;
     private boolean paused;
     private boolean finished;
+    private float calloutTimer;
+    private boolean bandoTurn;
     private String banner;
 
     public PlayScreen(KwisoBandoGame game) {
@@ -74,7 +76,9 @@ public class PlayScreen extends BaseScreen {
         noiseEvents.clear();
         paused = false;
         finished = false;
-        banner = "HIDE! SCATTER BEHIND COVER";
+        calloutTimer = 0f;
+        bandoTurn = false;
+        banner = "KWISO! BANDO! HIDE!";
     }
 
     private static List<Obstacle> buildMap() {
@@ -166,11 +170,19 @@ public class PlayScreen extends BaseScreen {
             case HIDING:
                 seeker.setFacing(180f);
                 timer -= delta;
+                calloutTimer -= delta;
+                if (calloutTimer <= 0f) {
+                    String callout = bandoTurn ? AudioManager.BANDO : AudioManager.KWISO;
+                    AudioManager.get().play(callout, 1f);
+                    bandoTurn = !bandoTurn;
+                    calloutTimer = AudioManager.get().duration(callout) + GameConfig.HIDE_CALLOUT_GAP;
+                }
                 if (timer <= 0f) {
+                    AudioManager.get().stop(AudioManager.KWISO);
+                    AudioManager.get().stop(AudioManager.BANDO);
                     phase = RoundPhase.SEARCHING;
                     timer = GameConfig.SEARCH_DURATION;
                     banner = "SEEKER IS PATROLLING";
-                    AudioManager.get().play(AudioManager.KWISO, 0.9f);
                 }
                 break;
             case SEARCHING:

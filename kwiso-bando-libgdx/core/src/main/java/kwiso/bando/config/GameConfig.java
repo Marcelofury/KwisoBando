@@ -4,7 +4,8 @@ public final class GameConfig {
     public static final int VIEW_WIDTH = 1280;
     public static final int VIEW_HEIGHT = 720;
 
-    public static final float HIDE_DURATION = 7f;
+    public static final float HIDE_DURATION = 15f;
+    public static final float HIDE_CALLOUT_GAP = 0.75f;
     public static final float SEARCH_DURATION = 60f;
 
     public static final float BASE_SPEED = 210f;

@@ -13,7 +13,7 @@ import kwiso.bando.config.Palette;
 public class HowToPlayScreen extends BaseScreen {
     private static final String[] RULES = {
         "1. SCATTER & HIDE",
-        "   Seeker counts 7 seconds while you reply Bando!",
+        "   Seeker counts 15 seconds while you reply Bando!",
         "2. EVADE THE CONE",
         "   Stay out of the amber cone; walls block sight.",
         "   Sprinting/dashing makes noise the seeker investigates.",
